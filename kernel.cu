@@ -5,14 +5,16 @@
 #include <iomanip>
 #include <fstream>
 #include <string>
+#include <ctime>
 
-//using namespace std;
+using namespace std;
 #define BLOCK_SIZE 16
-const unsigned int N = 512;
+const unsigned int N = 2000;
 float a[N][N];
 float b[N][N];
 float arrayGPU[N][N];
 float arrayCPU[N][N];
+
 
 __global__ void multipleGPU(float* a, float* b, int n, float* c)
 {
@@ -32,7 +34,7 @@ __global__ void multipleGPU(float* a, float* b, int n, float* c)
 int main()
 {
 	float timerGPU;
-	float timerCPU;
+	//float timerCPU;
 	cudaEvent_t start;
 	cudaEvent_t stop;
 	cudaEventCreate(&start);
@@ -63,7 +65,8 @@ int main()
 
 
 	//Matrix multiplication by CPU
-	cudaEventRecord(start, 0);
+	//cudaEventRecord(start, 0);
+	clock_t start_s = clock();
 	for (int i = 0; i < N; i++) {
 		for (int j = 0; j < N; j++) {
 			arrayCPU[i][j] = 0;
@@ -72,9 +75,11 @@ int main()
 			}
 		}
 	}
-	cudaEventRecord(stop, 0);
-	cudaEventSynchronize(stop);
-	cudaEventElapsedTime(&timerCPU, start, stop);
+	clock_t stop_s = clock();
+	cout << "\n CPU time " << (stop_s - start_s) / double(CLOCKS_PER_SEC) * 1000 << " msec" << endl;
+	//cudaEventRecord(stop, 0);
+	//cudaEventSynchronize(stop);
+	//cudaEventElapsedTime(&timerCPU, start, stop);
 	/*printf("--------------Multiple CPU---------------\n");
 	for (int i = 0; i < N; i++) {
 		for (int j = 0; j < N; j++) {
@@ -115,6 +120,6 @@ int main()
 	cudaFree(db);
 	cudaFree(dc);
 
-	printf("\n CPU time %f msec\n", timerCPU);
+	//printf("\n CPU time %f msec\n", timerCPU);
 	printf("\n GPU time %f msec\n", timerGPU);
 }
